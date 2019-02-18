@@ -70,12 +70,11 @@ class Otherredis
             if (!$isConnected) {
                 // 发送php告警
                 $message = "redis: Failed to connect to server[{" . json_encode($config['server']) . "}]";
-                \Yii::$app->monitor->saveErrorData('redis', 'redis_alert1', $message);
             }
         } catch (\Exception $e) {
             // 发送php告警
             $message = $e->getMessage() . " server[{" . json_encode($config['server']) . "}]";
-            \Yii::$app->monitor->saveErrorData('redis', 'redis_alert1', $message);
+
         }
     }
 
