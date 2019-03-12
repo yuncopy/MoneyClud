@@ -58,7 +58,7 @@ class SourcePosition extends ActiveRecord
                 endforeach;
 
                 //echo $model->find()->createCommand()->getRawSql();
-                return $model->save() ? $model->id : false;
+                return $model->save() ? $model->primaryKey : false;
 
             } else {     // 多维数组
                 //再执行批量插入
