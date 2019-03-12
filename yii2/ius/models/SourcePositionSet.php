@@ -54,7 +54,7 @@ class SourcePositionSet extends ActiveRecord
                     $model -> $key = $value;
                 endforeach;
 
-                return $model->save() ? $model->image_id : false;
+                return $model->save() ? $model->primaryKey : false;
 
             } else {     // 多维数组
                 //再执行批量插入
