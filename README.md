@@ -30,5 +30,22 @@ $ //或者这么写git push origin --delete currentBranch
 
 $ git push origin currentBranch
 
+02
+
+方法二，强制push远程分支
+
+①首先两步保证当前工作区是干净的，并且和远程分支代码一致
+
+②备份当前分支（如有必要）
+
+③恢复到指定的commit hash
+
+$ git reset --hard resetVersionHash
+
+④把当前分支强制提交到远程
+
+$ git push -f origin currentBranch
+
+
 
 
