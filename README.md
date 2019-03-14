@@ -43,6 +43,7 @@ $ git push origin currentBranch
 $ git reset --hard resetVersionHash
 
 ④把当前分支强制提交到远程
+备注：(目前回滚本地仓库代码，如果不强行推送到远程会提示，由于当前分支的提示落后，更新被拒绝，提示你需要git pull，如果pull代码就会覆盖本地代码)
 
 $ git push -f origin currentBranch
 
