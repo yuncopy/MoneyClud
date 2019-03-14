@@ -47,5 +47,7 @@ $ git reset --hard resetVersionHash
 $ git push -f origin currentBranch
 
 
+不使用强制推送
+
 
 
