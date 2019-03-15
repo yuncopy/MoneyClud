@@ -1,0 +1,359 @@
+### linux超级强大vim(文本编辑器)
+`
+命令模式:
+    k: 向上移动
+    j: 向下移动
+    l: 向右移动
+    h: 向左移动
+`
+yy: 复制当前行
+p: 粘贴在当前光标行所在的下一行
+np: n为数字, 粘贴n次
+u: 撤销
+dd: 删除光标所在的行
+ndd: 删除从光标所在的行开始的 后面的n行
+
+命令模式->输入模式
+	a: 插入状态是当前字符的后面
+	i: 插入状态是当前字符的前面
+	A( shift + a ): 插入状态在当前行的最后面
+	I( shift + i ): 插入状态在当前行的最前面
+	o: 在当前行的下面插入一个新行
+	O( shift + o ): 在当前行的上面插入一个新行
+
+末行模式:
+:w 保存
+:wq 保存并退出
+q!: 不保存，强制退出
+
+v模式:自由选择
+
+
+命令模式：
+nG( shift + g ): 直接跳到第n行
+1G: 到达第一行
+gg: 直接到达第一行
+G( shift + g ): 直接跳到文档的最后一行
+L: 跳到当前屏幕的下方
+M: 屏幕的中间部分
+H: 屏幕的上方
+dG: 删除光标所在的行 到末尾
+
+w: 移动到单词的第一个字母( 从前面->后面 )
+b: 移动到单词的第一个字母( 从后面->前面 )
+e: 移动到单词的最后一个字母( 从前面->后面 )
+r: 替换当前光标所在的字符
+    r--->U( shift + u )
+
+
+-------------------------------------------------------------------------------------------------
+set nu
+syntax on
+set autoindent
+set tabstop=4
+
+	末行模式: x等价于wq
+	视图模式
+		命令模式->v
+	
+	缩进
+		shift + > : 向右缩进
+		shift + < : 向左缩进
+	代码折叠
+		1，v模式选中需要折叠的代码, 按下zf
+		2，zfnj, n是个数字，代表从当前行，连续的n行需要被折叠
+		3，v模式, nG, 可以选中从当前行到第n行的所有代码
+		4，空格展开折叠代码
+	查找匹配括号: %
+
+
+
+" *********************** vim创建程序文件自动添加头部注释  ***********************************
+
+" 当新建 .h .c .hpp .cpp .mk .sh等文件时自动调用SetTitle 函数
+autocmd BufNewFile *.[ch],*.hpp,*.cpp,Makefile,*.mk,*.sh exec ":call SetTitle()" 
+
+" 加入注释 
+func SetComment()
+	call setline(1,"/*================================================================") 
+	call append(line("."),   "*   Copyright (C) ".strftime("%Y")." . All rights reserved.")
+	call append(line(".")+1, "*   ") 
+	call append(line(".")+2, "*   文件名称：".expand("%:t")) 
+	call append(line(".")+3, "*   创 建 者：ghostwu(吴华)")
+	call append(line(".")+4, "*   创建日期：".strftime("%Y年%m月%d日")) 
+	call append(line(".")+5, "*   描    述：") 
+	call append(line(".")+6, "*")
+	call append(line(".")+7, "================================================================*/") 
+	call append(line(".")+8, "")
+	call append(line(".")+9, "")
+endfunc
+
+" 加入shell,Makefile注释
+func SetComment_sh()
+	call setline(3, "#================================================================") 
+	call setline(4, "#   Copyright (C) ".strftime("%Y")." . All rights reserved.")
+	call setline(5, "#   ") 
+	call setline(6, "#   文件名称：".expand("%:t")) 
+	call setline(7, "#   创 建 者：ghostwu(吴华)")
+	call setline(8, "#   创建日期：".strftime("%Y年%m月%d日")) 
+	call setline(9, "#   描    述：") 
+	call setline(10, "#")
+	call setline(11, "#================================================================")
+	call setline(12, "")
+	call setline(13, "")
+endfunc 
+
+" 定义函数SetTitle，自动插入文件头 
+func SetTitle()
+
+	if &filetype == 'make' 
+		call setline(1,"") 
+		call setline(2,"")
+		call SetComment_sh()
+
+	elseif &filetype == 'sh' 
+		call setline(1,"#!/bin/bash") 
+		call setline(2,"")
+		call SetComment_sh()
+		
+	else
+	     call SetComment()
+	     if expand("%:e") == 'hpp' 
+		  call append(line(".")+10, "#ifndef _".toupper(expand("%:t:r"))."_H") 
+		  call append(line(".")+11, "#define _".toupper(expand("%:t:r"))."_H") 
+		  call append(line(".")+12, "#ifdef __cplusplus") 
+		  call append(line(".")+13, "extern \"C\"") 
+		  call append(line(".")+14, "{") 
+		  call append(line(".")+15, "#endif") 
+		  call append(line(".")+16, "") 
+		  call append(line(".")+17, "#ifdef __cplusplus") 
+		  call append(line(".")+18, "}") 
+		  call append(line(".")+19, "#endif") 
+		  call append(line(".")+20, "#endif //".toupper(expand("%:t:r"))."_H") 
+
+	     elseif expand("%:e") == 'h' 
+	  	call append(line(".")+10, "#pragma once") 
+
+	     elseif &filetype == 'c' 
+	  	call append(line(".")+10,"#include \"".expand("%:t:r").".h\"") 
+
+	     elseif &filetype == 'cpp' 
+	  	call append(line(".")+10, "#include \"".expand("%:t:r").".h\"") 
+
+	     endif
+
+	 endif
+endfunc
+
+" 打开vim时, 自动打开NERDTree
+" autocmd vimenter * NERDTree
+
+
+
+----------------------------------------------------------------------------------------------
+神奇的.: 重复刚才的指令
+
+查找
+    基本用法：
+        在normal模式下按下/即可进入查找模式，输入要查找的字符串并按下回车。 
+        Vim会跳转到第一个匹配。按下n查找下一个，按下N查找上一个
+
+        上下方向键切换已经输入过的查找命令  
+
+    在查找模式中加入\c表示大小写不敏感查找，\C表示大小写敏感查找
+    如 /is\c, /is\C
+
+    忽略大小写
+    set ignorecase
+
+    在normal模式(命令)下按下*即可查找光标所在单词（word）,
+    要求每次出现的前后为空白字符或标点符号
+    例如当前为foo， 可以匹配foo bar中的foo，但不可匹配foobar中的foo。 
+    int foo = 10, int foobar = 100;
+    这在查找函数名、变量名时非常有用
+
+    function show()
+    int a = 10;
+
+    查找与替换
+        :s（substitute）命令用来查找和替换字符串。语法如下：
+        :{作用范围}s/{目标}/{替换}/{替换标志}
+        例如:%s/is/IS/g会在全局范围(%)查找is并替换为IS，所有出现都会被替换（g）
+        g:全局替换
+
+    作用范围
+        作用范围分为当前行、全文、选区等等。
+            当前行：
+            :s/is/IS/g
+
+            全文：
+            :%s/is/IS/g
+
+            选区，在可视模式(vusial模式)下选择区域后输入:，Vim即可自动补全为 :'<,'>。
+            :'<,'>s/is/IS/g
+
+            第1-3行：
+            :1,3s/is/IS/g
+
+            当前行.与接下来两行+2：
+            :.,+2s/is/IS/g
+
+        替换模式
+            i:不区分大小写
+            I:区分大小写
+            g:全局替换
+            c:需要确认的替换
+            replace with IS (y/n/a/q/l/^E/^Y)? 
+            按下y表示替换，n表示不替换，a表示替换所有，q表示退出查找模式， l表示替换当前位置并退出
+
+把每一行的前面数字替换成空
+:1,$s/^[0-9]\+//g
+把每一行的所有数字替换成空
+:1,$s/[0-9]\+//g
+
+
+命令模式:
+    f:可以提高精准定位的效率，提高行的移动速度，比w,b,e等快多了
+    F:从后往前
+
+    f+查找的字符: fs  从前往后查找第一个出现的s
+        2fs: 查找第二个s
+        di):
+        da):
+
+        di,da是进行区块操作的， 在实际开发中，常用来删除区块中的内容
+        如 '', "", (), {}等
+
+
+-------------------------------------------------------------------------------------------
+插件管理器:
+    pathogen
+    vundle
+    等等...
+
+https://github.com/tpope/vim-pathogen
+https://github.com/scrooloose/nerdtree
+http://vim-taglist.sourceforge.net/index.html
+
+pathogen简介：
+    通常情况下安装vim插件是将所有的插件和相关的doc文件都安装在对应的文件夹中，
+    如$VIM/vim74/plugin目录下，文档在$VIM/vim74/doc目录下，
+    ( ~/.vim/plugin, ~/.vim/doc )
+    但这样做的后果是修改和卸载很麻烦，混在一起不好分清属于哪个插件的文件，
+    删错了容易导致vim出错。
+    pathogen就是用来管理插件的一个插件管理器。pathogen让每一个插件占有一个独立的目录，
+    解决了文件分散的问题。
+
+1，安装pathogen.vim
+    mkdir -p ~/.vim/autoload ~/.vim/bundle && \ 
+    curl -LSso ~/.vim/autoload/pathogen.vim https://tpo.pe/pathogen.vim
+    如果没有curl工具，需要安装
+2,启动pathogen的配置，放到~/.vimrc
+    execute pathogen#infect()
+    syntax on
+    filetype plugin indent on
+3,采用pathogen安装插件的方式，只需要把插件独立放在bundle目录中即可:
+    如，安装NERDTree只需要把git上的nerdtree.git拷贝到bundle目录下即可
+    git clone https://github.com/scrooloose/nerdtree.git ~/.vim/bundle/nerdtree
+
+nerdtree：
+    1，关闭和打开目录
+        o, O, x, X
+    2，关闭和打开选项卡
+        t(选项卡方式), T
+    3，关闭和打开文件
+        o, go
+        i gi, s, gs( 分屏打开文件 )
+    4，切换和关闭选项卡
+        gt  gT, ngT, ngt( n是数字 )
+        tabclose n( n是选项卡的序号 )
+        :q( 关闭当前窗口或者选项卡 )
+
+
+taglist安装:
+1)从http://vim-taglist.sourceforge.net/index.html下载。
+    备注：.zip文件用unzip解压, -d 指定解压的目录
+2)cp -r doc ~/.vim/ && cp -r plugin/ ~/.vim
+    解压之后,把doc和plugin 拷贝到 .vim下面，
+    如果.vim目录下面以前有doc和plugin目录，只需要拷贝插件中doc和plugin目录下的文件过去即可
+
+3)进入~/.vim/doc目录，在Vim下运行"helptags ."命令.
+此步骤是将doc下的帮助文档加入到Vim的帮助主题中，
+这样我们就可以通过在Vim中运行“help taglist.txt”查看taglist帮助。
+
+4)打开配置文件~/.vimrc，加入以下几行：
+let Tlist_Show_One_File=1     "不同时显示多个文件的tag，只显示当前文件的    
+let Tlist_Exit_OnlyWindow=1   "如果taglist窗口是最后一个窗口，则退出vim   
+let Tlist_Ctags_Cmd="/usr/local/bin/ctags" "将taglist与ctags关联  
+set mouse=a  " 总是允许使用鼠标
+
+使用taglist:
+<CR>:回车键
+<CR>          跳到光标下tag所定义的位置，用鼠标双击此tag功能也一样,
+前提是要在.vimrc中启用鼠标
+u             更新taglist窗口中的tag，比如文件源代码改变了，就会需要用u刷新
+
+
+-----------------------------------------------------------------------------------------
+https://github.com/VundleVim/Vundle.vim
+
+1，安装vundle
+    git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
+2，配置.vimrc, 加载vundle
+3，vundle使用:
+    :PluginInstall
+    :PluginList
+    D
+    :PluginClean
+    等等...
+
+利用Vundle安装UltiSnips
+https://github.com/SirVer/ultisnips
+
+单词删除技巧：
+    删除一个字符，操作为x
+    dw    从当前位置删除到下一个单词开头
+    db    从当前位置删除到前一个单词的开头
+    diw    删除光标上的单词 (不包括空白字符)
+    daw    删除光标上的单词 (包括空白字符)
+    D    从当前位置删除到行尾 ("d$" 的缩写), 行首: d0 d^
+    dG    删除到文件末
+    dgg    删除到文件首
+
+    还有之前介绍的区块操作
+    di+结束标志, da+结束标志
+
+--------------------------------------------------------------------------------------------------------
+
+
+YouCompleteMe安装
+https://github.com/Valloric/YouCompleteMe#ubuntu-linux-x64
+
+1，先用vundle安装YouCompleteMe( 要一定的时间，看网速快慢，我这用了接近20分钟，才安装完成 )
+2，安装开发工具和cmake
+sudo apt-get install build-essential cmake
+3,sudo apt-get install python-dev python3-dev
+4,cd ~/.vim/bundle/YouCompleteMe
+./install.py --all  (这步也很费时间)
+
+配置：
+1， .vimrc设置
+    Plugin 'Valloric/YouCompleteMe'
+    filetype plugin indent on     " required!
+    let g:ycm_global_ycm_extra_conf='~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py'
+2，.ycm_extra_conf.py设置
+备注：用gedit打开，可以复制黏贴
+vim ~/.vim/bundle/YouCompleteMe/third_party/ycmd/cpp/ycm/.ycm_extra_conf.py
+    '-isystem',
+    '/usr/include',
+    '-isystem',
+    '/usr/include/c++/5',
+    '-isystem',
+    '/usr/include/c++/5.4.0',
+    '-isystem',
+    '/usr/include',
+    '/usr/include/x86_64-linux-gnu/c++',
+
+
+ctrlp
+    https://github.com/ctrlpvim/ctrlp.vim
